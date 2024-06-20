@@ -7,7 +7,7 @@ const public_users = express.Router();
 
 const doesExist = (user) => {
     let usersWithSameName = users.filter((user)=>{
-        return user.user === user
+        return users.user === user
       });
       if(usersWithSameName.length > 0){
         return true;
