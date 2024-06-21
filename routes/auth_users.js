@@ -37,7 +37,7 @@ regd_users.post("/login", (req,res) => {
   const username = req.body.username;
   const pwd = req.body.password;
   if (!username || !pwd) {
-    return res.status(401).json({message: "Unable to login"})
+    return res.status(404).json({message: "Unable to login"})
   }
   if (authenticatedUser(username, pwd)) {
     let accessToken = jwt.sign({
@@ -58,15 +58,33 @@ regd_users.post("/login", (req,res) => {
 regd_users.put("/auth/review/:isbn", (req, res) => {
   const isbn = req.params.isbn;
   const review = req.query.review;
-  const user = req.session.username;
+  const formatedReview = review.split("+").join(" ")
+  const userReviewer = req.session.authorization.username
 
-  if (books[isbn]) {
-    books[isbn]["reviews"] = { user : review }
+  if (books[isbn]) { 
+    if (userReviewer in books[isbn]["reviews"]) {
+        books[isbn]["reviews"][userReviewer] = formatedReview;
+        return res.status(201).json({message: 'Review updated successfuly'})
+    }
+    books[isbn]["reviews"][userReviewer] = formatedReview;
     res.status(201).json({message: 'Review added successfuly'})
   } else {
-    res.status(301).json({message: 'Something went wrong'})
+    res.status(401).json({message: 'Something went wrong'})
   }
 });
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+    const isbn = req.params.isbn;
+    const username = req.session.authorization.username;
+    if (books[isbn]) {
+        let book = books[isbn];
+        delete book.reviews[username];
+        return res.status(201).json({message: 'Review successfuly deleted'})
+    }
+    else {
+        return res.status(404).json({message: 'The book was not found'})
+    }
+
+})
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
