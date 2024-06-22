@@ -84,6 +84,7 @@ function searchByAuthor(author) {
     }
   
 // Get book details based on author
+// Gett books by author with promises
 public_users.get('/author/:author',function (req, res) {
   const author = req.params.author
   const formattedAuthor = author.split('+').join(' ').toLowerCase();
