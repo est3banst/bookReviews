@@ -113,19 +113,16 @@ function searchByTitle (title) {
 }
 
 // Get all books based on title
+// Gett all books by title with promises
 public_users.get('/title/:title',function (req, res) {
   const title = req.params.title;
   const formatedTitle = title.split('+').join(' ').toLowerCase();
-  let booksByTitle = [];
-  if (formatedTitle) {
-    for (let book in books) {
-        if (books[book]["title"].toLowerCase().includes(formatedTitle)) {
-            booksByTitle.push(books[book]);
-        }
-    }
-    return res.status(200).json(booksByTitle)
-  }
-  return res.status(404).json({message: "No books were found with this title"});
+    searchByTitle(formatedTitle)
+    .then((booksByTitle) => {
+      return res.status(200).json(booksByTitle)
+    })
+    .catch((err) => { return res.status(404).json({message: "No books were found with this title"});
+  })
 });
 
 //  Get book review
